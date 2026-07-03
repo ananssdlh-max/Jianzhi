@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>每日碳蛋脂计算器</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;--card:#fff;--text:#182033;--muted:#6b7280;--line:#e6e8ef;
+      --primary:#2563eb;--primary-weak:#eaf1ff;--good:#15803d;--warn:#b45309;--bad:#b91c1c;
+      --shadow:0 10px 30px rgba(15,23,42,.08);--radius:18px;
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans SC",sans-serif;line-height:1.5}
+    header{position:sticky;top:0;z-index:20;background:rgba(246,247,251,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    .wrap{max-width:1180px;margin:0 auto;padding:14px 14px 96px}.topbar{max-width:1180px;margin:0 auto;padding:12px 14px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+    h1{font-size:20px;margin:0}.hint{color:var(--muted);font-size:13px}.tabs{display:flex;gap:8px;overflow:auto;padding-bottom:2px}.tab{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font-weight:700;color:var(--text);white-space:nowrap;cursor:pointer}.tab.active{background:var(--primary);color:white;border-color:var(--primary)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-3{grid-column:span 3}.span-2{grid-column:span 2}
+    @media(max-width:860px){.span-8,.span-6,.span-4,.span-3,.span-2{grid-column:span 12}.topbar{align-items:flex-start;flex-direction:column}.tabs{width:100%}.wrap{padding-bottom:110px}}
+    h2{font-size:18px;margin:0 0 10px} h3{font-size:16px;margin:0 0 10px}.row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;margin-bottom:10px}.field{grid-column:span 4}.field.sm{grid-column:span 3}.field.xs{grid-column:span 2}.field.full{grid-column:span 12}@media(max-width:720px){.field,.field.sm,.field.xs{grid-column:span 12}}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:700} input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);font-size:16px;padding:10px 11px;outline:none} textarea{min-height:74px;resize:vertical} input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-weak)}
+    button{border:0;border-radius:12px;background:var(--primary);color:white;font-size:15px;font-weight:800;padding:10px 12px;cursor:pointer}.btn-ghost{background:#fff;color:var(--primary);border:1px solid var(--line)}.btn-soft{background:var(--primary-weak);color:var(--primary)}.btn-danger{background:#fee2e2;color:var(--bad);border:1px solid #fecaca}.btn-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:#f1f5f9;color:#334155;padding:5px 8px;font-size:12px;font-weight:800}.pill.good{background:#dcfce7;color:var(--good)}.pill.warn{background:#ffedd5;color:var(--warn)}
+    .metric{border:1px solid var(--line);border-radius:16px;padding:12px;background:#fbfcff}.metric b{display:block;font-size:22px}.metric small{color:var(--muted)}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:860px){.metric-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.metric-grid{grid-template-columns:1fr}}
+    .macrobar{height:9px;background:#edf2f7;border-radius:999px;overflow:hidden;margin-top:8px}.macrobar>span{display:block;height:100%;background:var(--primary);border-radius:999px}.meal{border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:#fff}.meal-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.meal-head h3{margin:0}.meal-done{display:flex;align-items:center;gap:6px;color:var(--muted);font-weight:800;font-size:13px}.meal-done input{width:auto}.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:860px){.quick-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:480px){.quick-grid{grid-template-columns:1fr}}.quick{border:1px solid var(--line);border-radius:14px;padding:9px;background:#fafafa}.quick h4{margin:0 0 6px;font-size:13px}.quick .line{display:grid;grid-template-columns:1fr 92px 34px;gap:6px;align-items:center}.quick .line input,.quick select{padding:7px 8px;font-size:14px}.quick .add-line{grid-template-columns:1fr 72px}.quick .line span{color:var(--muted);font-size:12px}.summary-list{display:grid;gap:8px}.summary-row{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:center}.summary-equivalent{margin:3px 0 0 90px;color:var(--muted);font-size:12px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{border-collapse:collapse;width:100%;min-width:760px;background:white}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:14px}th{background:#f8fafc;color:#475569}tr:last-child td{border-bottom:0}.hidden{display:none!important}.photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.photo-preview img{width:78px;height:78px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:16px;background:#fff}.footer-actions{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line)}.footer-actions .inner{max-width:1180px;margin:0 auto;padding:10px 14px;display:flex;gap:8px;justify-content:space-between;align-items:center}.footer-actions .inner div{display:flex;gap:8px;flex-wrap:wrap}.muted{color:var(--muted)}.mono{font-variant-numeric:tabular-nums}.ok{color:var(--good)}.danger{color:var(--bad)}
+  </style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div>
+      <h1>每日碳蛋脂计算器</h1>
+      <div class="hint">纯本地存储 · 适合 GitHub Pages / 手机浏览器使用</div>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="profile">基础计算</button>
+      <button class="tab" data-tab="record">每日记录</button>
+      <button class="tab" data-tab="trend">趋势</button>
+      <button class="tab" data-tab="settings">设置/导出</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <section id="profile" class="tab-panel">
+    <div class="grid">
+      <div class="card span-8">
+        <h2>个人信息</h2>
+        <div class="row">
+          <div class="field"><label>名字</label><input id="name" placeholder="例如：阿男" /></div>
+          <div class="field"><label>性别</label><select id="gender"><option value="male">男</option><option value="female">女</option></select></div>
+          <div class="field"><label>年龄</label><input id="age" type="number" inputmode="numeric" min="1" placeholder="岁" /></div>
+          <div class="field"><label>身高</label><input id="height" type="number" inputmode="decimal" min="1" placeholder="cm" /></div>
+          <div class="field"><label>体重</label><input id="weight" type="number" inputmode="decimal" min="1" step="0.1" placeholder="kg" /></div>
+          <div class="field"><label>目标备注</label><input id="goal" placeholder="例如：减脂保肌 / 增肌" /></div>
+        </div>
+        <h3>计算参数</h3>
+        <div class="row">
+          <div class="field sm"><label>训练日碳水配额 g/kg</label><input id="trainCarbQuota" type="number" min="0" step="0.1" /></div>
+          <div class="field sm"><label>休息日碳水配额 g/kg</label><input id="restCarbQuota" type="number" min="0" step="0.1" /></div>
+          <div class="field sm"><label>训练日蛋白质配额 g/kg</label><input id="trainProteinQuota" type="number" min="0" step="0.1" /></div>
+          <div class="field sm"><label>休息日蛋白质配额 g/kg</label><input id="restProteinQuota" type="number" min="0" step="0.1" /></div>
+          <div class="field sm"><label>脂肪定值 g/日</label><input id="fatFixed" type="number" min="0" step="1" /></div>
+          <div class="field sm"><label>米饭碳水</label><input id="riceCarb" type="number" min="1" step="1" /></div>
+          <div class="field sm"><label>瘦肉蛋白</label><input id="meatProtein" type="number" min="1" step="1" /></div>
+        </div>
+        <div class="btn-row"><button id="saveProfile">保存基础信息</button><button class="btn-ghost" id="resetDemo">填入示例</button></div>
+        <p class="hint">默认公式：Mifflin-St Jeor 计算基础代谢 BMR；碳水 = 体重 × 碳水配额；蛋白质 = 体重 × 蛋白质配额；脂肪默认 60g；目标热量按碳水、蛋白质、脂肪折算。配额参考：增肌期男碳水 3.5–4.5g/kg、女 3–3.5g/kg，蛋白质男 1.5–2g/kg、女 1.5g/kg；减脂期男碳水初期 2.5–3g/kg、末期 2–2.5g/kg，蛋白质约 1.5g/kg；减脂期女碳水初期 2.5–3g/kg、末期 2–2.5g/kg，蛋白质 1.2–1.5g/kg。</p>
+      </div>
+      <div class="card span-4">
+        <h2>换算规则</h2>
+        <div class="summary-list">
+          <div class="pill">100g 熟米饭 ≈ 30g 碳水</div>
+          <div class="pill">100g 瘦肉 ≈ 25g 蛋白质</div>
+          <div class="pill">1份清淡菜 ≈ 5g 脂肪</div>
+          <div class="pill">1份重口菜 ≈ 10g 脂肪</div>
+        </div>
+        <p class="hint">这些值都可以在“基础计算”中改。每日记录里的食物预设可在“设置/导出”里新增或修改，每一餐都可以主动添加食材。</p>
+      </div>
+      <div class="card span-12">
+        <h2>训练日 / 休息日建议</h2>
+        <div class="metric-grid" id="macroCards"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="record" class="tab-panel hidden">
+    <div class="grid">
+      <div class="card span-12">
+        <h2>当天记录</h2>
+        <div class="row">
+          <div class="field sm"><label>日期</label><input id="recordDate" type="date" /></div>
+          <div class="field sm"><label>类型</label><select id="dayType"><option value="train">训练日</option><option value="rest">休息日</option></select></div>
+          <div class="field sm"><label>当日体重 kg</label><input id="bodyWeight" type="number" inputmode="decimal" step="0.1" /></div>
+          <div class="field sm"><label>运动消耗 kcal</label><input id="exercise" type="number" inputmode="numeric" step="10" value="0" /></div>
+          <div class="field full"><label>当天备注</label><textarea id="dayNote" placeholder="训练内容、饥饿感、睡眠、外食等"></textarea></div>
+        </div>
+      </div>
+      <div class="card span-4">
+        <h2>今日目标 / 剩余</h2>
+        <div id="todaySummary" class="summary-list"></div>
+      </div>
+      <div class="card span-8">
+        <h2>自动建议</h2>
+        <div class="hint">勾选某一餐“已吃完”后，剩余碳蛋脂会自动分配给未完成餐次。</div>
+        <div id="mealSuggestions"></div>
+      </div>
+      <div class="card span-12">
+        <h2>早餐 / 中餐 / 晚餐 / 加餐</h2>
+        <div id="meals"></div>
+      </div>
+      <div class="card span-12">
+        <h2>拍照记录</h2>
+        <input id="photoInput" type="file" accept="image/*" capture="environment" multiple />
+        <div class="hint">照片会压缩后存在当前浏览器 localStorage。数量太多会占用手机浏览器空间，建议定期导出 JSON 备份。</div>
+        <div id="photoPreview" class="photo-preview"></div>
+      </div>
+      <div class="card span-12">
+        <h2>每日热量小结</h2>
+        <div id="dailyConclusion"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trend" class="tab-panel hidden">
+    <div class="grid">
+      <div class="card span-12">
+        <h2>趋势图</h2>
+        <canvas id="trendCanvas" width="1100" height="330"></canvas>
+      </div>
+      <div class="card span-12">
+        <h2>历史记录</h2>
+        <div class="table-wrap"><table id="recordsTable"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="settings" class="tab-panel hidden">
+    <div class="grid">
+      <div class="card span-6">
+        <h2>食物预设</h2>
+        <p class="hint">单位是每 1 单位的碳水/蛋白质/脂肪。新增或修改后的食物，会出现在每一餐的“添加食材”里。米饭和瘦肉的基础换算会自动同步到这里，也可以继续手动改。</p>
+        <div id="foodSettings"></div>
+        <div class="btn-row"><button id="addFood" class="btn-soft">新增食物</button><button id="saveFoods">保存食物预设</button></div>
+      </div>
+      <div class="card span-6">
+        <h2>数据备份</h2>
+        <div class="btn-row">
+          <button id="exportJson">导出 JSON</button>
+          <button id="exportCsv" class="btn-soft">导出 CSV</button>
+          <button id="importBtn" class="btn-ghost">导入 JSON</button>
+          <button id="clearAll" class="btn-danger">清空全部数据</button>
+        </div>
+        <input id="importFile" class="hidden" type="file" accept="application/json" />
+        <p class="hint">JSON 可完整恢复数据；CSV 适合放进 Excel / Numbers 看趋势。</p>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="footer-actions">
+  <div class="inner">
+    <span class="hint" id="saveState">未保存修改会自动暂存</span>
+    <div><button id="saveRecord">保存当天记录</button><button class="btn-ghost" id="newRecord">新建/清空当天</button></div>
+  </div>
+</div>
+<script>
+const LS_KEY = 'macroTracker.v2';
+const MEAL_NAMES = {breakfast:'早餐', lunch:'中餐', dinner:'晚餐', snack:'加餐'};
+const MEAL_WEIGHTS = {breakfast:.25, lunch:.35, dinner:.30, snack:.10};
+const MEAL_DEFAULT_FOODS = {breakfast:['egg','bun','meat'], lunch:['rice','meat','lightVeg'], dinner:['rice','meat','lightVeg'], snack:['proteinPowder','banana']};
+const DEFAULT = {
+  profile:{name:'', gender:'male', age:30, height:175, weight:75, goal:'', trainCarbQuota:2.0, restCarbQuota:1.5, trainProteinQuota:1.3, restProteinQuota:1.3, fatFixed:60, riceCarb:30, meatProtein:25},
+  foods:[
+    {id:'egg', name:'水煮蛋', unit:'个', carb:.6, protein:6, fat:5, kcal:null},
+    {id:'bun', name:'花卷', unit:'100g', carb:45, protein:7, fat:1, kcal:null},
+    {id:'rice', name:'米饭', unit:'100g', carb:30, protein:2.5, fat:.3, kcal:null},
+    {id:'meat', name:'瘦肉', unit:'100g', carb:0, protein:25, fat:5, kcal:null},
+    {id:'lightVeg', name:'清淡菜', unit:'份', carb:8, protein:2, fat:5, kcal:null},
+    {id:'heavyVeg', name:'重口菜', unit:'份', carb:8, protein:2, fat:10, kcal:null},
+    {id:'proteinPowder', name:'蛋白粉', unit:'勺', carb:2, protein:24, fat:1.5, kcal:null},
+    {id:'banana', name:'香蕉', unit:'根', carb:23, protein:1, fat:.3, kcal:null}
+  ],
+  draft:null,
+  records:[]
+};
+let state = loadState();
+let currentRecord = state.draft || blankRecord();
+let dirty = false;
+
+function $(id){return document.getElementById(id)}
+function round(n, d=0){const p=10**d; return Math.round((Number(n)||0)*p)/p}
+function clamp(n,min=0){return Math.max(min, Number(n)||0)}
+function todayISO(){const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10)}
+function uid(){return Math.random().toString(36).slice(2,10)}
+function kcal(m){return (m.carb||0)*4+(m.protein||0)*4+(m.fat||0)*9}
+function loadState(){try{const fresh=localStorage.getItem(LS_KEY); const legacy=localStorage.getItem('macroTracker.v1'); const s=JSON.parse(fresh || legacy || 'null'); return mergeState(DEFAULT, s||{})}catch(e){return structuredClone(DEFAULT)}}
+function ensureRecordShape(record){const r=record||blankRecord(); r.meals=r.meals||{}; Object.keys(MEAL_NAMES).forEach(k=>{r.meals[k]=r.meals[k]||{done:false,items:{}}; r.meals[k].items=r.meals[k].items||{};}); r.photos=Array.isArray(r.photos)?r.photos:[]; return r}
+function mergeState(base, extra){const out=structuredClone(base); Object.assign(out.profile, extra.profile||{}); if(extra.profile && !('trainProteinQuota' in extra.profile) && extra.profile.proteinFactor){out.profile.trainProteinQuota=Number(extra.profile.proteinFactor)||out.profile.trainProteinQuota; out.profile.restProteinQuota=Number(extra.profile.proteinFactor)||out.profile.restProteinQuota;} const userFoods=Array.isArray(extra.foods)&&extra.foods.length?extra.foods:[]; const mergedFoods=userFoods.length?structuredClone(userFoods):structuredClone(base.foods); base.foods.forEach(df=>{if(!mergedFoods.some(f=>f.id===df.id)) mergedFoods.push(structuredClone(df));}); out.foods=mergedFoods; out.records=Array.isArray(extra.records)?extra.records.map(r=>ensureRecordShape(r)):[]; out.draft=extra.draft?ensureRecordShape(extra.draft):null; return out}
+function persist(){state.draft=currentRecord; localStorage.setItem(LS_KEY, JSON.stringify(state)); dirty=false; $('saveState').textContent='已自动暂存';}
+function blankRecord(){return {id:uid(), date:todayISO(), dayType:'train', bodyWeight:'', exercise:0, note:'', photos:[], meals:{breakfast:{done:false,items:{}},lunch:{done:false,items:{}},dinner:{done:false,items:{}},snack:{done:false,items:{}}}}}
+function bmr(profile=state.profile){const w=Number(profile.weight)||0,h=Number(profile.height)||0,a=Number(profile.age)||0; if(!w||!h||!a) return 0; return 10*w+6.25*h-5*a+(profile.gender==='male'?5:-161)}
+function targets(dayType='train', exercise=0){const p=state.profile; const base=bmr(p); const w=Number(p.weight)||0; const carbQuota=dayType==='train'?(Number(p.trainCarbQuota)||0):(Number(p.restCarbQuota)||0); const proteinQuota=dayType==='train'?(Number(p.trainProteinQuota)||0):(Number(p.restProteinQuota)||0); const carb=Math.max(0,w*carbQuota); const protein=Math.max(0,w*proteinQuota); const fat=Math.max(0,Number(p.fatFixed)||0); const totalKcal=carb*4+protein*4+fat*9; return {kcal:round(totalKcal), carb:round(carb), protein:round(protein), fat:round(fat), bmr:round(base), carbQuota:round(carbQuota,1), proteinQuota:round(proteinQuota,1)} }
+function foodMap(){return Object.fromEntries(state.foods.map(f=>[f.id,f]))}
+function mealMacros(meal){const foods=foodMap(); const out={carb:0,protein:0,fat:0,kcal:0}; Object.entries(meal.items||{}).forEach(([id,qty])=>{const f=foods[id]; if(!f) return; const q=Number(qty)||0; out.carb+=q*(Number(f.carb)||0); out.protein+=q*(Number(f.protein)||0); out.fat+=q*(Number(f.fat)||0); out.kcal+=q*(f.kcal!=null&&f.kcal!==''?Number(f.kcal):kcal(f));}); return {carb:round(out.carb,1),protein:round(out.protein,1),fat:round(out.fat,1),kcal:round(out.kcal)} }
+function actualMacros(record=currentRecord){const out={carb:0,protein:0,fat:0,kcal:0}; Object.values(record.meals).forEach(meal=>{const m=mealMacros(meal); out.carb+=m.carb; out.protein+=m.protein; out.fat+=m.fat; out.kcal+=m.kcal}); return {carb:round(out.carb,1),protein:round(out.protein,1),fat:round(out.fat,1),kcal:round(out.kcal)} }
+function remaining(record=currentRecord){const t=targets(record.dayType, record.exercise); const a=actualMacros(record); return {kcal:round(t.kcal-a.kcal), carb:round(t.carb-a.carb,1), protein:round(t.protein-a.protein,1), fat:round(t.fat-a.fat,1)} }
+function suggestForMacros(m){const p=state.profile; return {rice:round((Math.max(m.carb,0)/(Number(p.riceCarb)||30))*100), meat:round((Math.max(m.protein,0)/(Number(p.meatProtein)||25))*100), lightVeg:round(Math.max(m.fat,0)/5,1), heavyVeg:round(Math.max(m.fat,0)/10,1)} }
+function setDirty(){dirty=true; $('saveState').textContent='有修改，已暂存到浏览器'; persistDebounced()}
+let persistTimer=null; function persistDebounced(){clearTimeout(persistTimer); persistTimer=setTimeout(persist,350)}
+
+function bindProfile(){Object.keys(state.profile).forEach(k=>{if($(k)) $(k).value=state.profile[k]}); ['name','gender','age','height','weight','goal','trainCarbQuota','restCarbQuota','trainProteinQuota','restProteinQuota','fatFixed','riceCarb','meatProtein'].forEach(id=>{$(id).addEventListener('input',()=>{state.profile[id]=isNaN(Number($(id).value))||$(id).value===''?$(id).value:Number($(id).value); syncFoodsFromProfile(true); setDirty(); renderAll();})}); $('saveProfile').onclick=()=>{syncFoodsFromProfile(true); persist(); renderAll();}; $('resetDemo').onclick=()=>{state.profile={...DEFAULT.profile,name:'阿男',age:32,height:175,weight:75,goal:'减脂保肌'}; bindProfileValuesOnly(); syncFoodsFromProfile(true); setDirty(); renderAll();}}
+function syncFoodsFromProfile(force){const rice=state.foods.find(f=>f.id==='rice'), meat=state.foods.find(f=>f.id==='meat'); if(rice && (force || Number(rice.carb)===30)) rice.carb=Number(state.profile.riceCarb)||30; if(meat && (force || Number(meat.protein)===25)) meat.protein=Number(state.profile.meatProtein)||25;}
+function renderMacroCards(){const train=targets('train',0), rest=targets('rest',0); const html=[['训练日',train],['休息日',rest]].map(([name,t])=>{const s=suggestForMacros(t);return `<div class="metric"><small>${name}目标热量</small><b class="mono">${t.kcal} kcal</b><div class="hint">Mifflin BMR ${t.bmr} kcal</div></div><div class="metric"><small>${name}碳水</small><b class="mono">${t.carb}g</b><div class="hint">配额 ${t.carbQuota}g/kg；约熟米饭 ${s.rice}g</div></div><div class="metric"><small>${name}蛋白质</small><b class="mono">${t.protein}g</b><div class="hint">配额 ${t.proteinQuota}g/kg；约瘦肉 ${s.meat}g</div></div><div class="metric"><small>${name}脂肪</small><b class="mono">${t.fat}g</b><div class="hint">清淡菜 ${s.lightVeg}份 / 重口菜 ${s.heavyVeg}份</div></div>`}).join(''); $('macroCards').innerHTML=html;}
+
+function bindRecordBase(){['recordDate','dayType','bodyWeight','exercise','dayNote'].forEach(id=>{$(id).addEventListener('input',()=>{const map={recordDate:'date',dayType:'dayType',bodyWeight:'bodyWeight',exercise:'exercise',dayNote:'note'}; currentRecord[map[id]]=$(id).value; setDirty(); renderRecordComputed();})}); $('saveRecord').onclick=saveRecord; $('newRecord').onclick=()=>{currentRecord=blankRecord(); setDirty(); renderAll();}; $('photoInput').addEventListener('change', handlePhotos);}
+function fillRecordBase(){ $('recordDate').value=currentRecord.date||todayISO(); $('dayType').value=currentRecord.dayType||'train'; $('bodyWeight').value=currentRecord.bodyWeight||''; $('exercise').value=currentRecord.exercise||0; $('dayNote').value=currentRecord.note||''; renderPhotos();}
+function visibleFoodIdsForMeal(key){const defaults=MEAL_DEFAULT_FOODS[key]||[]; const items=Object.keys(currentRecord.meals[key].items||{}); const foods=foodMap(); return [...new Set([...defaults,...items])].filter(id=>foods[id]);}
+function renderMeals(){const foods=state.foods, foodsById=foodMap(); $('meals').innerHTML=Object.entries(MEAL_NAMES).map(([key,label])=>{const visibleIds=visibleFoodIdsForMeal(key); const visibleSet=new Set(visibleIds); const addable=foods.filter(f=>!visibleSet.has(f.id)); return `<div class="meal" data-meal="${key}"><div class="meal-head"><h3>${label}</h3><label class="meal-done"><input type="checkbox" data-done="${key}" ${currentRecord.meals[key].done?'checked':''}/> 已吃完</label></div><div class="quick-grid">${visibleIds.map(id=>{const f=foodsById[id]; const has=Object.prototype.hasOwnProperty.call(currentRecord.meals[key].items,id); const val=has?currentRecord.meals[key].items[id]:''; return `<div class="quick"><h4>${escapeHtml(f.name)}</h4><div class="line"><span>${escapeHtml(f.unit)} ×</span><input data-food="${f.id}" data-meal-food="${key}" type="number" inputmode="decimal" step="0.1" min="0" value="${val}" placeholder="0"><span>份量</span></div></div>`}).join('')}<div class="quick"><h4>添加食材</h4><div class="line add-line"><select data-add-select="${key}">${addable.length?addable.map(f=>`<option value="${f.id}">${escapeHtml(f.name)}（${escapeHtml(f.unit)}）</option>`).join(''):'<option value="">无可添加食物</option>'}</select><button class="btn-soft" data-add-food="${key}" type="button">添加</button></div></div></div><div class="hint meal-total" id="mealTotal-${key}"></div></div>`}).join('');
+  document.querySelectorAll('[data-done]').forEach(el=>el.addEventListener('change',e=>{currentRecord.meals[e.target.dataset.done].done=e.target.checked; setDirty(); renderRecordComputed();}));
+  document.querySelectorAll('[data-meal-food]').forEach(el=>el.addEventListener('input',e=>{const meal=e.target.dataset.mealFood, food=e.target.dataset.food; const val=e.target.value; if(val===''||Number(val)<=0) delete currentRecord.meals[meal].items[food]; else currentRecord.meals[meal].items[food]=Number(val); setDirty(); renderRecordComputed();}));
+  document.querySelectorAll('[data-add-food]').forEach(btn=>btn.addEventListener('click',e=>{const meal=e.target.dataset.addFood; const select=document.querySelector(`[data-add-select="${meal}"]`); const id=select?select.value:''; if(!id) return; if(!currentRecord.meals[meal].items) currentRecord.meals[meal].items={}; if(!Object.prototype.hasOwnProperty.call(currentRecord.meals[meal].items,id)) currentRecord.meals[meal].items[id]=0; setDirty(); renderMeals();})); renderRecordComputed();}
+function equivalentText(name, rv){const p=state.profile; const val=Math.max(Number(rv)||0,0); if(name==='碳水') return `剩余碳水约等于熟米饭 ${round(val/(Number(p.riceCarb)||30)*100)}g`; if(name==='蛋白质') return `剩余蛋白质约等于瘦肉 ${round(val/(Number(p.meatProtein)||25)*100)}g`; if(name==='脂肪') return `剩余脂肪约等于清淡菜 ${round(val/5,1)}份，或重口菜 ${round(val/10,1)}份`; return ''}
+function renderRecordComputed(){const t=targets(currentRecord.dayType,currentRecord.exercise), a=actualMacros(currentRecord), r=remaining(currentRecord); const rows=[['热量',t.kcal,a.kcal,r.kcal,'kcal'],['碳水',t.carb,a.carb,r.carb,'g'],['蛋白质',t.protein,a.protein,r.protein,'g'],['脂肪',t.fat,a.fat,r.fat,'g']]; $('todaySummary').innerHTML=rows.map(([n,tv,av,rv,u])=>{const pct=tv?Math.min(100,Math.max(0,av/tv*100)):0; const cls=rv<0?'danger':rv/tv<.1?'ok':''; const eq=equivalentText(n,rv); return `<div><div class="summary-row"><b>${n}</b><span class="mono">目标 ${tv}${u} / 已吃 ${av}${u}</span><b class="mono ${cls}">${rv}${u}</b></div>${eq?`<div class="summary-equivalent">${eq}</div>`:''}<div class="macrobar"><span style="width:${pct}%"></span></div></div>`}).join('');
+  Object.keys(MEAL_NAMES).forEach(k=>{const m=mealMacros(currentRecord.meals[k]); const el=$('mealTotal-'+k); if(el) el.textContent=`已记录：${m.kcal} kcal，碳水 ${m.carb}g，蛋白质 ${m.protein}g，脂肪 ${m.fat}g`;});
+  renderSuggestions(t,a,r); renderConclusion(t,a,r); renderTrend();}
+function renderSuggestions(t,a,r){const todo=Object.keys(MEAL_NAMES).filter(k=>!currentRecord.meals[k].done); const sumW=todo.reduce((s,k)=>s+MEAL_WEIGHTS[k],0)||1; $('mealSuggestions').innerHTML=todo.length?todo.map(k=>{const ratio=MEAL_WEIGHTS[k]/sumW; const m={carb:r.carb*ratio,protein:r.protein*ratio,fat:r.fat*ratio,kcal:r.kcal*ratio}; const s=suggestForMacros(m); return `<div class="meal"><h3>${MEAL_NAMES[k]}建议</h3><div class="metric-grid"><div class="metric"><small>热量</small><b class="mono">${round(Math.max(m.kcal,0))}</b></div><div class="metric"><small>熟米饭</small><b class="mono">${s.rice}g</b></div><div class="metric"><small>瘦肉</small><b class="mono">${s.meat}g</b></div><div class="metric"><small>菜品</small><b class="mono">${s.lightVeg}份清淡</b><small>或 ${s.heavyVeg}份重口</small></div></div><div class="hint">折合：碳水 ${round(Math.max(m.carb,0),1)}g，蛋白质 ${round(Math.max(m.protein,0),1)}g，脂肪 ${round(Math.max(m.fat,0),1)}g</div></div>`}).join(''):`<div class="pill good">全部餐次已完成</div>`;}
+function renderConclusion(t,a,r){const over=r.kcal<0; const net=a.kcal-(Number(currentRecord.exercise)||0); const carbGap=round(t.carb-a.carb,1), proGap=round(t.protein-a.protein,1), fatGap=round(t.fat-a.fat,1); $('dailyConclusion').innerHTML=`<div class="metric-grid"><div class="metric"><small>目标热量</small><b class="mono">${t.kcal} kcal</b></div><div class="metric"><small>已吃热量</small><b class="mono ${over?'danger':''}">${a.kcal} kcal</b></div><div class="metric"><small>运动后净摄入</small><b class="mono">${net} kcal</b></div><div class="metric"><small>状态</small><b>${over?'超出 '+Math.abs(r.kcal)+' kcal':'还可吃 '+r.kcal+' kcal'}</b></div></div><p class="hint">缺口：碳水 ${carbGap}g，蛋白质 ${proGap}g，脂肪 ${fatGap}g。负数表示已超过目标。</p>`;}
+function saveRecord(){currentRecord.date=$('recordDate').value||todayISO(); currentRecord.dayType=$('dayType').value; currentRecord.bodyWeight=$('bodyWeight').value; currentRecord.exercise=Number($('exercise').value)||0; currentRecord.note=$('dayNote').value||''; const idx=state.records.findIndex(r=>r.date===currentRecord.date); const copy=structuredClone(currentRecord); if(idx>=0) state.records[idx]=copy; else state.records.push(copy); state.records.sort((a,b)=>a.date.localeCompare(b.date)); state.draft=copy; currentRecord=copy; persist(); renderAll(); $('saveState').textContent='当天记录已保存';}
+async function handlePhotos(e){const files=[...e.target.files]; for(const file of files){try{const data=await compressImage(file); currentRecord.photos.push(data);}catch(err){alert('照片读取失败：'+err.message)}} e.target.value=''; setDirty(); renderPhotos();}
+function compressImage(file){return new Promise((resolve,reject)=>{const img=new Image(); const reader=new FileReader(); reader.onload=()=>{img.onload=()=>{const max=1200; let w=img.width,h=img.height; if(Math.max(w,h)>max){if(w>h){h=Math.round(h*max/w);w=max}else{w=Math.round(w*max/h);h=max}} const c=document.createElement('canvas'); c.width=w;c.height=h; const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h); resolve(c.toDataURL('image/jpeg',.75));}; img.onerror=reject; img.src=reader.result;}; reader.onerror=reject; reader.readAsDataURL(file);});}
+function renderPhotos(){const photos=currentRecord.photos||[]; $('photoPreview').innerHTML=photos.map((src,i)=>`<div><img src="${src}" alt="food photo ${i+1}"><br><button class="btn-danger" data-del-photo="${i}" style="padding:5px 8px;font-size:12px">删除</button></div>`).join(''); document.querySelectorAll('[data-del-photo]').forEach(b=>b.onclick=()=>{currentRecord.photos.splice(Number(b.dataset.delPhoto),1); setDirty(); renderPhotos();});}
+
+function renderFoodSettings(){$('foodSettings').innerHTML=state.foods.map((f,i)=>`<div class="meal"><div class="row"><div class="field sm"><label>名称</label><input data-foodset="name" data-i="${i}" value="${escapeHtml(f.name)}"></div><div class="field sm"><label>单位</label><input data-foodset="unit" data-i="${i}" value="${escapeHtml(f.unit)}"></div><div class="field xs"><label>碳水 g</label><input type="number" step="0.1" data-foodset="carb" data-i="${i}" value="${f.carb}"></div><div class="field xs"><label>蛋白 g</label><input type="number" step="0.1" data-foodset="protein" data-i="${i}" value="${f.protein}"></div><div class="field xs"><label>脂肪 g</label><input type="number" step="0.1" data-foodset="fat" data-i="${i}" value="${f.fat}"></div><div class="field xs"><label>热量 kcal</label><input type="number" step="1" data-foodset="kcal" data-i="${i}" value="${f.kcal??''}" placeholder="自动"></div></div><button class="btn-danger" data-del-food="${i}">删除</button></div>`).join(''); document.querySelectorAll('[data-foodset]').forEach(inp=>inp.addEventListener('input',e=>{const i=Number(e.target.dataset.i), key=e.target.dataset.foodset; state.foods[i][key]=['name','unit'].includes(key)?e.target.value:(e.target.value===''?null:Number(e.target.value)); setDirty(); renderMeals(); renderRecordComputed();})); document.querySelectorAll('[data-del-food]').forEach(btn=>btn.onclick=()=>{const i=Number(btn.dataset.delFood); if(confirm('删除这个食物预设？历史记录里的对应数量也会无法计算。')){state.foods.splice(i,1); setDirty(); renderAll();}});}
+function bindSettings(){ $('addFood').onclick=()=>{state.foods.push({id:uid(),name:'新食物',unit:'份',carb:0,protein:0,fat:0,kcal:null}); setDirty(); renderAll();}; $('saveFoods').onclick=()=>{persist(); renderAll();}; $('exportJson').onclick=()=>downloadFile('macro-tracker-backup.json', JSON.stringify({...state,draft:currentRecord},null,2), 'application/json'); $('exportCsv').onclick=exportCsv; $('importBtn').onclick=()=>$('importFile').click(); $('importFile').onchange=importJson; $('clearAll').onclick=()=>{if(confirm('确认清空全部数据？建议先导出 JSON 备份。')){localStorage.removeItem(LS_KEY); localStorage.removeItem('macroTracker.v1'); state=structuredClone(DEFAULT); currentRecord=blankRecord(); renderAll(); persist();}};}
+function exportCsv(){const header=['date','type','bodyWeight','targetKcal','actualKcal','exercise','netKcal','carbTarget','carbActual','proteinTarget','proteinActual','fatTarget','fatActual','note']; const lines=[header.join(',')]; state.records.forEach(r=>{const t=targets(r.dayType,r.exercise),a=actualMacros(r); const row=[r.date,r.dayType,r.bodyWeight,t.kcal,a.kcal,r.exercise,a.kcal-(Number(r.exercise)||0),t.carb,a.carb,t.protein,a.protein,t.fat,a.fat,r.note||''].map(csvCell); lines.push(row.join(','));}); downloadFile('macro-tracker-records.csv', lines.join('\n'), 'text/csv;charset=utf-8');}
+function csvCell(v){const s=String(v??''); return /[",\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
+function downloadFile(name, content, type){const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url)}
+function importJson(e){const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=()=>{try{const imported=mergeState(DEFAULT, JSON.parse(reader.result)); state=imported; currentRecord=state.draft||blankRecord(); persist(); renderAll(); alert('导入完成');}catch(err){alert('导入失败：JSON 格式不正确')}}; reader.readAsText(f); e.target.value='';}
+
+function renderTrend(){renderRecordsTable(); drawTrend();}
+function renderRecordsTable(){const rows=state.records.map(r=>{const t=targets(r.dayType,r.exercise),a=actualMacros(r); return `<tr><td>${r.date}</td><td>${r.dayType==='train'?'训练日':'休息日'}</td><td>${r.bodyWeight||''}</td><td>${t.kcal}</td><td>${a.kcal}</td><td>${a.kcal-(Number(r.exercise)||0)}</td><td>${a.carb}/${t.carb}</td><td>${a.protein}/${t.protein}</td><td>${a.fat}/${t.fat}</td><td><button class="btn-soft" data-load-record="${r.id}">载入</button> <button class="btn-danger" data-delete-record="${r.id}">删除</button></td></tr>`}).join(''); $('recordsTable').innerHTML=`<thead><tr><th>日期</th><th>类型</th><th>体重kg</th><th>目标kcal</th><th>已吃kcal</th><th>净摄入</th><th>碳水</th><th>蛋白</th><th>脂肪</th><th>操作</th></tr></thead><tbody>${rows||'<tr><td colspan="10">暂无记录</td></tr>'}</tbody>`; document.querySelectorAll('[data-load-record]').forEach(b=>b.onclick=()=>{const r=state.records.find(x=>x.id===b.dataset.loadRecord); if(r){currentRecord=structuredClone(r); renderAll(); switchTab('record');}}); document.querySelectorAll('[data-delete-record]').forEach(b=>b.onclick=()=>{if(confirm('删除这条记录？')){state.records=state.records.filter(x=>x.id!==b.dataset.deleteRecord); persist(); renderAll();}});}
+function drawTrend(){const c=$('trendCanvas'); const ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height); const data=state.records.slice(-60); ctx.font='14px -apple-system, BlinkMacSystemFont, sans-serif'; ctx.fillStyle='#64748b'; if(!data.length){ctx.fillText('暂无记录，保存每日记录后会显示趋势。',30,50); return;} const pad={l:58,r:20,t:24,b:48}; const w=c.width-pad.l-pad.r,h=c.height-pad.t-pad.b; ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1; for(let i=0;i<=4;i++){const y=pad.t+h*i/4; ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+w,y); ctx.stroke();}
+  const kcalVals=data.flatMap(r=>[targets(r.dayType,r.exercise).kcal, actualMacros(r).kcal]).filter(Boolean); const weightVals=data.map(r=>Number(r.bodyWeight)).filter(Boolean); const kmin=Math.min(...kcalVals), kmax=Math.max(...kcalVals); const wmin=weightVals.length?Math.min(...weightVals):0, wmax=weightVals.length?Math.max(...weightVals):1; const x=i=>pad.l+(data.length===1?w/2:w*i/(data.length-1)); const yK=v=>pad.t+h-(v-(kmin-100))/(Math.max(200,kmax-kmin+200))*h; const yW=v=>pad.t+h-(v-(wmin-1))/(Math.max(2,wmax-wmin+2))*h;
+  function line(vals, yFn, dash=[]){ctx.setLineDash(dash); ctx.beginPath(); vals.forEach((v,i)=>{if(v==null||isNaN(v)) return; const xx=x(i), yy=yFn(v); i===0?ctx.moveTo(xx,yy):ctx.lineTo(xx,yy);}); ctx.stroke(); ctx.setLineDash([]);} ctx.lineWidth=3; ctx.strokeStyle='#2563eb'; line(data.map(r=>actualMacros(r).kcal), yK); ctx.strokeStyle='#94a3b8'; line(data.map(r=>targets(r.dayType,r.exercise).kcal), yK, [8,6]); ctx.strokeStyle='#16a34a'; line(data.map(r=>Number(r.bodyWeight)||null), yW);
+  ctx.fillStyle='#0f172a'; ctx.fillText('蓝线：已吃热量　灰虚线：目标热量　绿线：体重', pad.l, 18); ctx.fillStyle='#64748b'; data.forEach((r,i)=>{if(i%Math.ceil(data.length/6)===0||i===data.length-1) ctx.fillText(r.date.slice(5), x(i)-18, c.height-18);}); ctx.fillText(`${round(kmin)}-${round(kmax)} kcal`, 8, pad.t+14); if(weightVals.length) ctx.fillText(`${round(wmin,1)}-${round(wmax,1)} kg`, 8, pad.t+34);}
+
+function bindTabs(){document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>switchTab(btn.dataset.tab));}
+function switchTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id)); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('hidden',p.id!==id)); if(id==='trend') renderTrend();}
+function escapeHtml(str){return String(str??'').replace(/[&<>'"]/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
+function renderAll(){bindProfileValuesOnly(); fillRecordBase(); renderMacroCards(); renderMeals(); renderFoodSettings(); renderRecordComputed();}
+function bindProfileValuesOnly(){Object.keys(state.profile).forEach(k=>{if($(k) && document.activeElement!==$(k)) $(k).value=state.profile[k]});}
+
+bindTabs(); bindProfile(); bindRecordBase(); bindSettings(); renderAll(); persist();
+window.addEventListener('beforeunload',()=>{if(dirty) persist();});
+</script>
+</body>
+</html>
